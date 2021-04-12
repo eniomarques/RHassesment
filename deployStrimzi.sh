@@ -96,3 +96,19 @@ kubectl create ns base64streams
 
 # Deploying the base64 encoder example, it uses different topics from the previous kafka cluster, with the same images for consumer and producer, but with my image for streams.
 kubectl create -f $(dirname "$0")/base64streams.yaml -n base64streams
+
+
+# Validation part. Will wait for pod and call the validation script that grabs data from consumer log and decode it.
+
+echo -e "\nWaiting for pod and validating the decoding based in the consumer logs..."
+
+kubectl wait --for=condition=ready pod -l app=java-kafka-base64-streams --timeout=300s -n base64streams
+
+sleep 10
+echo -e "\nCalling the validation.sh script that gets a sample of the consumer logs and decode using the OS base64 decoder:" 
+$(dirname "$0")/validation.sh
+
+echo -e "\nSleeping for 10 seconds to execute the validation again for more samples..."
+sleep 10
+$(dirname "$0")/validation.sh
+
