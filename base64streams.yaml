@@ -1,0 +1,112 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: input-topic
+  labels:
+      strimzi.io/cluster: my-cluster
+spec:
+  replicas: 3
+  partitions: 12
+---
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: output-topic
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  replicas: 3
+  partitions: 12
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: java-kafka-base64-producer
+  name: java-kafka-base64-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-kafka-base64-producer
+  template:
+    metadata:
+      labels:
+        app: java-kafka-base64-producer
+    spec:
+      containers:
+      - name: java-kafka-base64-producer
+        image: quay.io/strimzi-examples/java-kafka-producer:latest
+        env:
+          - name: BOOTSTRAP_SERVERS
+            value: my-cluster-kafka-bootstrap.my-kafka-project:9092
+          - name: TOPIC
+            value: input-topic
+          - name: DELAY_MS
+            value: "1000"
+          - name: LOG_LEVEL
+            value: "INFO"
+          - name: MESSAGE_COUNT
+            value: "100"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: java-kafka-base64-streams
+  name: java-kafka-base64-streams
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-kafka-base64-streams
+  template:
+    metadata:
+      labels:
+        app: java-kafka-base64-streams
+    spec:
+      containers:
+        - name: java-kafka-base64-streams
+          image: quay.io/eniomarques/java-kafka-streams:latest
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: my-cluster-kafka-bootstrap.my-kafka-project:9092
+            - name: APPLICATION_ID
+              value: java-kafka-base64-streams
+            - name: SOURCE_TOPIC
+              value: input-topic
+            - name: TARGET_TOPIC
+              value: output-topic
+            - name: LOG_LEVEL
+              value: "INFO"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: java-kafka-base64-consumer
+  name: java-kafka-base64-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-kafka-base64-consumer
+  template:
+    metadata:
+      labels:
+        app: java-kafka-base64-consumer
+    spec:
+      containers:
+        - name: java-kafka-base64-consumer
+          image: quay.io/strimzi-examples/java-kafka-consumer:latest
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: my-cluster-kafka-bootstrap.my-kafka-project:9092
+            - name: TOPIC
+              value: output-topic
+            - name: GROUP_ID
+              value: java-kafka-base64-consumer
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: MESSAGE_COUNT
+              value: "100"

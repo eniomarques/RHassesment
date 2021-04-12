@@ -1,0 +1,19 @@
+# Maven specific
+**/target/*
+
+# IntelliJ IDEA specific
+.idea/
+*.iml
+
+# Eclipse specific
+**/.project
+**/.settings/*
+**/.prefs
+**/.classpath
+**/.factorypath
+/target/
+
+**/dependency-reduced-pom.xml
+
+# VSCode
+.vscode/
