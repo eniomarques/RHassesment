@@ -103,8 +103,10 @@ kubectl create -f $(dirname "$0")/base64streams.yaml -n base64streams
 echo -e "\nWaiting for pod and validating the decoding based in the consumer logs..."
 
 kubectl wait --for=condition=ready pod -l app=java-kafka-base64-streams --timeout=300s -n base64streams
+kubectl wait --for=condition=ready pod -l app=java-kafka-base64-consumer --timeout=300s -n base64streams
+kubectl wait --for=condition=ready pod -l app=java-kafka-base64-producer --timeout=300s -n base64streams
 
-sleep 10
+sleep 30
 echo -e "\nCalling the validation.sh script that gets a sample of the consumer logs and decode using the OS base64 decoder:" 
 $(dirname "$0")/validation.sh
 
