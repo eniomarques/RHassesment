@@ -23,11 +23,6 @@ if [ ! -d /opt/strimzi ]; then
   mkdir -p /opt/strimzi
 fi
 
-#if using the same ns for both Strimzi and Kafka cluster
-if [[ -z $KAFKACLUSTERNS ]]; then
-  KAFKACLUSTERNS=$STRIMZIOPNS
-fi
-
 
 
 #Downloading and extracting Strimzi
@@ -46,7 +41,7 @@ sed -i "s/namespace: .*/namespace: $STRIMZIOPNS/" $INSTALLDIR/cluster-operator/*
 # Creating the NS for Kafka cluster deploy, only if different from the other ns
 
 if [ "$STRIMZIOPNS" != "$KAFKACLUSTERNS" ]; then
-kubectl create ns $KAFKACLUSTERNS
+  kubectl create ns $KAFKACLUSTERNS
 fi
 
 
